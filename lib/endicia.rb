@@ -226,7 +226,8 @@ module Endicia
       :success => false,
       :error_message => nil,
       :status => nil,
-      :response_body => response_body
+      :response_body => response_body,
+      :status_code => nil
     }
 
     if options[:logger]
