@@ -19,6 +19,15 @@ module Endicia
       self.response_body = filter_response_body(result.body.dup)
       data = result["LabelRequestResponse"] || {}
       data.each do |k, v|
+        Rails.logger.info(k.inspect)
+        if k == "Label"
+          v.each do |key, value|
+            key = "image" if key == 'Image'
+            if send("respond_to?", "#{key.tableize.singularize}=")
+              send(:"#{key.tableize.singularize}=", value) if !key['xmlns']
+            end
+          end
+        end
         k = "image" if k == 'Base64LabelImage'
         if send("respond_to?", "#{k.tableize.singularize}=")
           send(:"#{k.tableize.singularize}=", v) if !k['xmlns']

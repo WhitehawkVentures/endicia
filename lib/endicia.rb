@@ -70,12 +70,14 @@ module Endicia
     insurance = extract_insurance(opts)
     handle_extended_zip_code(opts)
 
-    root_keys = :LabelType, :Test, :LabelSize, :ImageFormat, :ImageResolution
+    root_keys = :LabelType, :Test, :LabelSize, :ImageFormat, :ImageResolution, :LabelSubtype
     root_attributes = extract(opts, root_keys)
     root_attributes[:LabelType] ||= "Default"
 
     dimension_keys = :Length, :Width, :Height
     mailpiece_dimenions = extract(opts, dimension_keys)
+    customs_info = extract(opts, [:CustomsInfo])
+    customs_items = extract(opts, [:CustomsItem])
 
     xml = Builder::XmlMarkup.new
     body = "labelRequestXML=" + xml.LabelRequest(root_attributes) do |xm|
@@ -86,12 +88,35 @@ module Endicia
           mailpiece_dimenions.each { |key, value| md.tag!(key, value) }
         end
       end
+      unless customs_info.empty?
+        Endicia.to_xml(xm, customs_info)
+      end
     end
+    Rails.logger.info(xml.inspect)
 
     result = self.post(url, :body => body)
     Endicia::Label.new(result).tap do |the_label|
       the_label.request_body = body.to_s
       the_label.request_url = url
+    end
+  end
+  
+  def self.to_xml(xml, hash)
+    hash.each do |key, value|
+      if value.is_a?(Hash)
+        xml.tag!("#{key.to_s}") do |x|
+          Endicia.to_xml(xml, value)
+        end
+      elsif value.is_a?(Array)
+        node = key
+        value.each do |v|
+          xml.tag!("#{node.to_s}") do |x|
+            Endicia.to_xml(x, v)
+          end
+        end
+      else
+        xml.tag!("#{key.to_s}", value) unless key.is_a?(Hash)
+      end
     end
   end
 
