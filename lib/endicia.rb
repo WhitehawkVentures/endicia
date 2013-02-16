@@ -92,7 +92,6 @@ module Endicia
         Endicia.to_xml(xm, customs_info)
       end
     end
-    Rails.logger.info(xml.inspect)
 
     result = self.post(url, :body => body)
     Endicia::Label.new(result).tap do |the_label|
