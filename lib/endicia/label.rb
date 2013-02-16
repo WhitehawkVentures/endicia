@@ -19,7 +19,6 @@ module Endicia
       self.response_body = filter_response_body(result.body.dup)
       data = result["LabelRequestResponse"] || {}
       data.each do |k, v|
-        Rails.logger.info(k.inspect)
         if k == "Label"
           v.each do |key, value|
             key = "image" if key == 'Image'
