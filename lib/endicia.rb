@@ -70,7 +70,7 @@ module Endicia
     insurance = extract_insurance(opts)
     handle_extended_zip_code(opts)
 
-    root_keys = :LabelType, :Test, :LabelSize, :ImageFormat, :ImageResolution, :LabelSubtype
+    root_keys = :LabelType, :Test, :LabelSize, :ImageFormat, :ImageResolution, :LabelSubtype, :ImageRotation
     root_attributes = extract(opts, root_keys)
     root_attributes[:LabelType] ||= "Default"
 
