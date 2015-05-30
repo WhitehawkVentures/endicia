@@ -326,9 +326,18 @@ module Endicia
       unless response[:error_message] = result['ErrorMsg']
         response[:form_number]   = result['FormNumber']
 
+        puts "ENDICIA REFUND RESULT IS: #{result.inspect}"
         result = result['RefundList']['PICNumber']
-        response[:success]       = (result.match(/<IsApproved>YES<\/IsApproved>/) ? true : false)
-        response[:error_message] = result.match(/<ErrorMsg>(.+)<\/ErrorMsg>/)[1]
+        if result.is_a? Hash
+          # Sometimes (always?) endicia returns this format instead of what we're looking for: "RefundList"=>{"PICNumber"=>{"__content__"=>"faketrackingnumber\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t", "IsApproved"=>{"__content__"=>"NO"}
+          if result['IsApproved']
+            response[:success]       = result['IsApproved'] == 'YES' ? true : false
+            response[:error_message] = result['ErrorMsg']
+          end
+        else
+          response[:success]       = (result.match(/<IsApproved>YES<\/IsApproved>/) ? true : false)
+          response[:error_message] = result.match(/<ErrorMsg>(.+)<\/ErrorMsg>/)[1]
+        end
       end
     end
 
