@@ -896,4 +896,11 @@ class TestEndicia < Test::Unit::TestCase
       end
     end
   end
+
+  describe '::sanitize' do
+    should 'remove invalid characters' do
+      result = Endicia.sanitize('<>&')
+      assert_equal result, ''
+    end
+  end
 end

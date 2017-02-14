@@ -119,6 +119,10 @@ module Endicia
     end
   end
 
+  def self.sanitize(str)
+    str.gsub(/<|>|\&/, '')
+  end
+
   # Change your account pass phrase. This is a required step to move to
   # production use after requesting an account.
   #
